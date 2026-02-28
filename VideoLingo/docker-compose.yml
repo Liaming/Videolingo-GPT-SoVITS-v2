@@ -1,0 +1,69 @@
+services:
+  gpt-sovits:
+    image: xxxxrt666/gpt-sovits:latest-cu128
+    container_name: gpt-sovits_container
+    ports:
+      - "9880:9880"
+    volumes:
+      - ../GPT-SoVITS:/workspace/GPT-SoVITS   # 按官方方式挂载整个目录
+    environment:
+      - is_half=true
+      - HF_ENDPOINT=https://hf-mirror.com
+    shm_size: "16g"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    runtime: nvidia
+    command: >
+      bash -c "
+        pip uninstall -y torchcodec 2>/dev/null || true &&
+        python3 /workspace/GPT-SoVITS/fix_torchaudio.py &&
+        export LD_PRELOAD=/root/conda/lib/libstdc++.so.6 &&
+        cd /workspace/GPT-SoVITS &&
+        python api_v2.py -a 0.0.0.0 -p 9880 -c GPT_SoVITS/configs/narrator.yaml
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9880/docs || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+    networks:
+      - videolingo_network
+
+  videolingo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: videolingo_container
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+      - videolingo_cache:/root/.cache/huggingface
+      - ./output:/app/output
+      - ../GPT-SoVITS/GPT_SoVITS/configs:/workspace/GPT-SoVITS/GPT_SoVITS/configs
+    environment:
+      - HF_ENDPOINT=https://hf-mirror.com
+      - GPT_SOVITS_URL=http://gpt-sovits:9880
+      - DOCKER_MODE=1
+    depends_on:
+      gpt-sovits:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - videolingo_network
+
+volumes:
+  videolingo_cache:
+
+networks:
+  videolingo_network:
+    name: videolingo_network

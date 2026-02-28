@@ -1,0 +1,16 @@
+# VideoLingo
+VideoLingo/config.yaml
+VideoLingo/output/
+VideoLingo/_model_cache/
+VideoLingo/.streamlit/
+
+# GPT-SoVITS
+GPT-SoVITS/GPT_SoVITS/pretrained_models/
+GPT-SoVITS/GPT_SoVITS/configs/*.wav
+
+# Common
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.log
+**/.env
