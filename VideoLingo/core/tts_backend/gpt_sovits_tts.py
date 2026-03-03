@@ -87,7 +87,7 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
         prompt_lang = 'zh' if any('\u4e00' <= char <= '\u9fff' for char in content) else 'en'
         
         print(f"Detected language: {prompt_lang}")
-        prompt_text = content
+        prompt_text = "这是一段测试语音，用于音色克隆参考。"
     elif REFER_MODE in [2, 3]:
         # Check if the reference audio file exists
         ref_audio_path = current_dir / ("output/audio/refers/1.wav" if REFER_MODE == 2 else f"output/audio/refers/{number}.wav")

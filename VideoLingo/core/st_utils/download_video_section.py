@@ -7,6 +7,7 @@ from time import sleep
 import streamlit as st
 from core._1_ytdlp import download_video_ytdlp, find_video_files
 from core.utils import *
+from core.auto_voice import auto_extract_narrator_voice
 from translations.translations import translate as t
 
 OUTPUT_DIR = "output"
@@ -43,6 +44,12 @@ def download_video_section():
                 if url:
                     with st.spinner("Downloading video..."):
                         download_video_ytdlp(url, resolution=res)
+                    with st.spinner("Auto extracting voice from video..."):
+                        try:
+                            video_file = find_video_files()
+                            auto_extract_narrator_voice(video_file)
+                        except Exception as e:
+                            st.warning(f"Auto voice extraction failed, using existing narrator: {e}")
                     st.rerun()
 
             uploaded_file = st.file_uploader(t("Or upload video"), type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
@@ -65,6 +72,12 @@ def download_video_section():
 
                 if ext.lower() in load_key("allowed_audio_formats"):
                     convert_audio_to_video(os.path.join(OUTPUT_DIR, clean_name))
+                with st.spinner("Auto extracting voice from video..."):
+                    try:
+                        video_file = find_video_files()
+                        auto_extract_narrator_voice(video_file)
+                    except Exception as e:
+                        st.warning(f"Auto voice extraction failed, using existing narrator: {e}")
                 st.rerun()
             else:
                 return False
