@@ -5,7 +5,7 @@ services:
     ports:
       - "9880:9880"
     volumes:
-      - ../GPT-SoVITS:/workspace/GPT-SoVITS   # 按官方方式挂载整个目录
+      - ../GPT-SoVITS:/workspace/GPT-SoVITS
     environment:
       - is_half=true
       - HF_ENDPOINT=https://hf-mirror.com
@@ -43,6 +43,7 @@ services:
       - videolingo_cache:/root/.cache/huggingface
       - ./output:/app/output
       - ../GPT-SoVITS/GPT_SoVITS/configs:/workspace/GPT-SoVITS/GPT_SoVITS/configs
+      - /usr/lib/wsl/lib/libnvidia-encode.so.1:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.1:ro
     environment:
       - HF_ENDPOINT=https://hf-mirror.com
       - GPT_SOVITS_URL=http://gpt-sovits:9880
@@ -57,7 +58,31 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu]
+              capabilities: [gpu, video, compute]
+    networks:
+      - videolingo_network
+
+  gpt-sovits-webui:
+    image: xxxxrt666/gpt-sovits:latest-cu128
+    container_name: gpt-sovits-webui
+    profiles: ["webui"]
+    ports:
+      - "9871:9871"
+      - "9872:9872"
+      - "9873:9873"
+      - "9874:9874"
+    volumes:
+      - ../GPT-SoVITS:/workspace/GPT-SoVITS
+    environment:
+      - is_half=true
+    shm_size: "16g"
+    runtime: nvidia
+    command: >
+      bash -c "
+        export LD_PRELOAD=/root/conda/lib/libstdc++.so.6 &&
+        cd /workspace/GPT-SoVITS &&
+        python webui.py
+      "
     networks:
       - videolingo_network
 
