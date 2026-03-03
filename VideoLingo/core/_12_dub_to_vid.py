@@ -105,6 +105,21 @@ def merge_video_audio():
     
     subprocess.run(cmd)
     rprint(f"[bold green]Video and audio successfully merged into {DUB_VIDEO}[/bold green]")
+    
+    # Anti-fingerprint post-processing
+    rprint("[bold yellow]Applying anti-fingerprint processing...[/bold yellow]")
+    tmp_video = DUB_VIDEO.replace('.mp4', '_tmp.mp4')
+    os.rename(DUB_VIDEO, tmp_video)
+    anti_cmd = [
+        'ffmpeg', '-y', '-i', tmp_video,
+        '-vf', 'crop=iw*0.98:ih*0.98,scale=iw:ih,eq=brightness=0.01:contrast=1.02,noise=alls=2:allf=t',
+        '-af', 'asetrate=44100*1.002,aresample=44100,atempo=0.998',
+        '-c:v', 'h264_nvenc' if load_key("ffmpeg_gpu") else 'libx264',
+        '-c:a', 'aac', '-b:a', '96k', DUB_VIDEO
+    ]
+    subprocess.run(anti_cmd)
+    os.remove(tmp_video)
+    rprint("[bold green]Anti-fingerprint processing done![/bold green]")
 
 if __name__ == '__main__':
     merge_video_audio()

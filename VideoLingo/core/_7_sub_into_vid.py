@@ -95,6 +95,20 @@ def merge_subtitles_to_video():
         process.wait()
         if process.returncode == 0:
             rprint(f"\n✅ Done! Time taken: {time.time() - start_time:.2f} seconds")
+            # Anti-fingerprint post-processing
+            rprint("[bold yellow]Applying anti-fingerprint processing...[/bold yellow]")
+            tmp_video = OUTPUT_VIDEO.replace('.mp4', '_tmp.mp4')
+            os.rename(OUTPUT_VIDEO, tmp_video)
+            anti_cmd = [
+                'ffmpeg', '-y', '-i', tmp_video,
+                '-vf', 'crop=iw*0.98:ih*0.98,scale=iw:ih,eq=brightness=0.01:contrast=1.02,noise=alls=2:allf=t',
+                '-af', 'asetrate=44100*1.002,aresample=44100,atempo=0.998',
+                '-c:v', 'h264_nvenc' if ffmpeg_gpu else 'libx264',
+                '-c:a', 'aac', '-b:a', '96k', OUTPUT_VIDEO
+            ]
+            subprocess.run(anti_cmd)
+            os.remove(tmp_video)
+            rprint("[bold green]Anti-fingerprint processing done![/bold green]")
         else:
             rprint("\n❌ FFmpeg execution error")
     except Exception as e:
