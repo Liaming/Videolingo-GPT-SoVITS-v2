@@ -1,0 +1,12 @@
+cat > /home/alienix/Codebase/projects/VideoLingo/.dockerignore << 'EOF'
+.git
+output/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv
+*.log
+*.tmp
+config.yaml
+EOF

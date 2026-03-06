@@ -1,0 +1,25 @@
+# VideoLingo
+VideoLingo/config.yaml
+VideoLingo/output/
+VideoLingo/_model_cache/
+VideoLingo/.streamlit/
+
+# GPT-SoVITS
+GPT-SoVITS/GPT_SoVITS/pretrained_models/
+GPT-SoVITS/GPT_SoVITS/configs/*.wav
+
+# Common
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.log
+**/.env
+*.ckpt
+*.pth
+*.bin
+*.onnx
+GPT-SoVITS/GPT_SoVITS/configs/sep/
+GPT-SoVITS/GPT_SoVITS/configs/separator_models/
+GPT-SoVITS/GPT_SoVITS/configs/auto_voice_raw*.wav
+GPT-SoVITS/GPT_SoVITS/configs/narrator_*.wav
+GPT-SoVITS/GPT_SoVITS/configs/VoiceSeparation.wav
